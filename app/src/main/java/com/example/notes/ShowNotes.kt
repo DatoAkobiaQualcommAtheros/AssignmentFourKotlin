@@ -1,6 +1,6 @@
 package com.example.notes
 
-import android.os.Build
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,30 +11,53 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ShowNotes: AppCompatActivity() {
+class ShowNotes : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.show_notes)
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = Adapter(generateFakeValues())
+        recyclerView.adapter = Adapter(titleGenerate(), descriptionGenerate())
 
     }
 
+    @SuppressLint("Range")
+    private fun titleGenerate(): MutableList<String> {
+        val db = DBHelper(this, null)
+        val list = mutableListOf<String>()
+        val cursor = db.getNotes()
+        cursor!!.moveToFirst()
 
-    private fun generateFakeValues(): List<Pair<String, Any?>> {
-        Toast.makeText(this, "Text", Toast.LENGTH_SHORT).show()
-        val prefs = getSharedPreferences("com.example.notes", MODE_PRIVATE)
-        val all = prefs.all
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(DBHelper.TITLE_COl)))
 
-       return all.toList()
+        }
+
+        return list
     }
 
-    class Adapter(private val values: List<Pair<String, Any?>>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+    @SuppressLint("Range")
+    private fun descriptionGenerate(): MutableList<String> {
+        val db = DBHelper(this, null)
+        val list = mutableListOf<String>()
+        val cursor = db.getNotes()
+        cursor!!.moveToFirst()
+
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(DBHelper.DESCRIPTION_COL)))
+
+        }
+
+        return list
+    }
+
+    class Adapter(
+        private val values: MutableList<String>,
+        private val descriptionValues: MutableList<String>
+    ) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
         override fun getItemCount(): Int = values.size
-
 
         class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             var textiew: TextView? = null
@@ -55,18 +78,17 @@ class ShowNotes: AppCompatActivity() {
 
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            for (elem in values.toList()) {
-                holder.textiew?.text = values[position].toList()[0] as CharSequence?
 
-                }
+            holder.textiew?.text = values[position]
+            holder.textDescription?.text = "Some_Random"
 
-                holder.textDescription?.text = values[position].toList().toString()
-            }
 
         }
 
-
     }
+
+
+}
 
 
 

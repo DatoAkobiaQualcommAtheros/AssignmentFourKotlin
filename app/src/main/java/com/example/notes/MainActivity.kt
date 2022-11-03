@@ -29,8 +29,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         clearData.setOnClickListener {
-            val prefs = getSharedPreferences("com.example.notes", MODE_PRIVATE)
-            prefs.edit().clear().apply()
+            val db = DBHelper(this, null)
+            db.deleteNotes()
+            db.close()
             Toast.makeText(this, "Cache has been cleared", Toast.LENGTH_SHORT).show()
         }
 
